@@ -1,4 +1,10 @@
-export default function CityAndData({ cityName, countryCode, date, time }) {
+export default function CityAndData({
+  cityName,
+  region,
+  countryCode,
+  date,
+  time,
+}) {
   const regionNamesInPortuguese = new Intl.DisplayNames(["pt-BR"], {
     type: "region",
   });
@@ -12,7 +18,9 @@ export default function CityAndData({ cityName, countryCode, date, time }) {
         />
 
         <h1 className="text-3xl font-bold">
-          {cityName}, {regionNamesInPortuguese.of(countryCode)}
+          {cityName}
+          {region != "Região" && `, ${region}`} -{" "}
+          {regionNamesInPortuguese.of(countryCode)}
         </h1>
       </div>
 

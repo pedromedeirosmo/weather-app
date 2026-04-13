@@ -18,6 +18,7 @@ export default function App() {
   const [clima, setClima] = useState({});
   const [time, setTime] = useState("");
   const [cityName, setCityName] = useState("Cidade");
+  const [region, setRegion] = useState("Região");
   const [countryCode, setCountryCode] = useState("CD");
   const [date, setDate] = useState(formattingDate());
   const [icon, setIcon] = useState(
@@ -29,10 +30,11 @@ export default function App() {
   const [windSpeed, setWindSpeed] = useState("0 km/h");
   const [feelsLike, setFeelsLike] = useState("0°");
 
-  function setHooks(data) {
+  function setHooks(data, city) {
     setClima(data);
-    setCityName(data.name);
-    setCountryCode(data.sys.country);
+    setCityName(city.name || data.name);
+    setRegion(city?.region || "Região");
+    setCountryCode(city.countryCode || data.sys.country);
     setDate(formattingDate());
 
     const formattedTemp = `${Math.round(data.main.temp)}°`;
@@ -50,18 +52,25 @@ export default function App() {
     setIcon(iconUrl);
   }
 
-  async function onClickSearchBtn(cityName) {
+  async function onClickSearchBtn(city) {
     try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`,
-      );
+      let url;
+
+      if (city.latitude != null && city.longitude != null) {
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${city.latitude}&lon=${city.longitude}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`;
+      } else {
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`;
+      }
+
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.cod !== 200) {
         alert("Cidade não encontrada");
         return;
       }
-      setHooks(data);
+
+      setHooks(data, city);
     } catch (error) {
       console.log("Erro real:", error);
     }
@@ -76,13 +85,23 @@ export default function App() {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`,
         );
-
         const data = await response.json();
+
+        const bigDataCloudResponse = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`,
+        );
+        const bigCloudData = await bigDataCloudResponse.json();
+
         if (data.cod !== 200) {
           alert("Erro ao buscar clima pela localização");
           return;
         }
-        setHooks(data);
+        setHooks(data, {
+          name: data.name,
+          region: bigCloudData.principalSubdivision,
+          latitude: lat,
+          longitude: lon,
+        });
       },
       (error) => {
         if (error.code === 1) {
@@ -99,6 +118,7 @@ export default function App() {
     }
   }, []);
 
+  // Tempo da hora
   useEffect(() => {
     const formatter = new Intl.DateTimeFormat("pt-BR", {
       hour: "2-digit",
@@ -112,12 +132,45 @@ export default function App() {
     return () => clearInterval(interval); // Quando esse componente sair da tela, para esse intervalo
   }, []);
 
+  async function fetchCities(prefix) {
+    if (!prefix) return [];
+
+    try {
+      const response = await fetch(
+        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${prefix}&limit=5`,
+        {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Key": import.meta.env.VITE_GEODB_KEY,
+            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+          },
+        },
+      );
+
+      // Trata erro tipo 429
+      if (!response.ok) {
+        console.log("Erro na API:", response.status);
+        return [];
+      }
+
+      const data = await response.json();
+      return data.data || []; // Evita undefined
+    } catch (error) {
+      console.log("Erro ao buscar cidades:", error);
+      return [];
+    }
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-4">
       <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 w-fit text-white">
-        <SearchBar onClickSearchBtn={onClickSearchBtn} />
+        <SearchBar
+          onClickSearchBtn={onClickSearchBtn}
+          fetchCities={fetchCities}
+        />
         <CityAndData
           cityName={cityName}
+          region={region}
           countryCode={countryCode}
           date={date}
           time={time}

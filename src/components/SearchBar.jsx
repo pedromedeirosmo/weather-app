@@ -2,38 +2,9 @@ import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useEffect } from "react";
 
-export default function SearchBar({ onClickSearchBtn }) {
+export default function SearchBar({ onClickSearchBtn, fetchCities }) {
   const [cityName, setCityName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-
-  async function fetchCities(prefix) {
-    if (!prefix) return [];
-
-    try {
-      const response = await fetch(
-        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${prefix}&limit=5`,
-        {
-          method: "GET",
-          headers: {
-            "X-RapidAPI-Key": import.meta.env.VITE_GEODB_KEY,
-            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
-          },
-        },
-      );
-
-      // Trata erro tipo 429
-      if (!response.ok) {
-        console.log("Erro na API:", response.status);
-        return [];
-      }
-
-      const data = await response.json();
-      return data.data || []; // Evita undefined
-    } catch (error) {
-      console.log("Erro ao buscar cidades:", error);
-      return [];
-    }
-  }
 
   useEffect(() => {
     // limpa quando vazio
@@ -61,8 +32,8 @@ export default function SearchBar({ onClickSearchBtn }) {
           onChange={(event) => setCityName(event.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              onClickSearchBtn(cityName);
-              setSuggestions([]);
+              onClickSearchBtn({ name: cityName });
+              setSuggestions([]); // Apagar sugestões
             }
           }}
         />
@@ -70,7 +41,7 @@ export default function SearchBar({ onClickSearchBtn }) {
         <button
           className="bg-white/20 hover:bg-white/30 rounded-2xl px-4 py-3 transition"
           onClick={() => {
-            onClickSearchBtn(cityName);
+            onClickSearchBtn({ name: cityName });
             setSuggestions([]);
           }}
         >
@@ -87,7 +58,7 @@ export default function SearchBar({ onClickSearchBtn }) {
               onClick={() => {
                 setCityName(city.name);
                 setSuggestions([]); // Zera as sugestões
-                onClickSearchBtn(`${city.name}, ${city.countryCode}`);
+                onClickSearchBtn(city);
               }}
             >
               <img
