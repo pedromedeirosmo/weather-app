@@ -1,15 +1,15 @@
 import { SearchIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useEffect } from "react";
 
 export default function SearchBar({ onClickSearchBtn, fetchCities }) {
   const [cityName, setCityName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [isSelecting, setIsSelecting] = useState(false);
+  const isSelecting = useRef(false);
 
   useEffect(() => {
-    if (isSelecting) {
-      setIsSelecting(false);
+    if (isSelecting.current) {
+      isSelecting.current = false;
       return;
     }
 
@@ -22,6 +22,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
     const delay = setTimeout(async () => {
       const cities = await fetchCities(cityName);
       setSuggestions(cities);
+      console.log(cities);
     }, 600);
 
     return () => clearTimeout(delay);
@@ -38,7 +39,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
           onChange={(event) => setCityName(event.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              setIsSelecting(true);
+              isSelecting.current = true;
               onClickSearchBtn({ name: cityName });
               setSuggestions([]); // Apagar sugestões
             }
@@ -48,7 +49,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
         <button
           className="bg-white/20 hover:bg-white/30 rounded-2xl px-4 py-3 transition"
           onClick={() => {
-            setIsSelecting(true);
+            isSelecting.current = true;
             onClickSearchBtn({ name: cityName });
             setSuggestions([]);
           }}
@@ -64,7 +65,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
               key={city.id}
               className="p-3 hover:bg-gray-200 cursor-pointer transition"
               onClick={() => {
-                setIsSelecting(true);
+                isSelecting.current = true;
                 setCityName(city.name);
                 setSuggestions([]); // Zera as sugestões
                 onClickSearchBtn(city);

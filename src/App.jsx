@@ -138,7 +138,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${prefix}&limit=5`,
+        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${prefix}&sort=-population&limit=5`,
         {
           method: "GET",
           headers: {
