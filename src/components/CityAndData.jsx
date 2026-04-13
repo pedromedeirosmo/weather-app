@@ -25,7 +25,7 @@ export default function CityAndData({
       </div>
 
       <p className="text-white/70 text-sm mt-1">{date}</p>
-      <p className="text-white/70 text-sm mt-1">{time}</p>
+      <p className="text-white/70 text-sm mt-1">{time} - Horário de Brasília</p>
     </div>
   );
 }

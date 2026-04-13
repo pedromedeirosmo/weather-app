@@ -5,8 +5,14 @@ import { useEffect } from "react";
 export default function SearchBar({ onClickSearchBtn, fetchCities }) {
   const [cityName, setCityName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   useEffect(() => {
+    if (isSelecting) {
+      setIsSelecting(false);
+      return;
+    }
+
     // limpa quando vazio
     if (!cityName.trim() || cityName.length < 3) {
       setSuggestions([]);
@@ -32,6 +38,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
           onChange={(event) => setCityName(event.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              setIsSelecting(true);
               onClickSearchBtn({ name: cityName });
               setSuggestions([]); // Apagar sugestões
             }
@@ -41,6 +48,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
         <button
           className="bg-white/20 hover:bg-white/30 rounded-2xl px-4 py-3 transition"
           onClick={() => {
+            setIsSelecting(true);
             onClickSearchBtn({ name: cityName });
             setSuggestions([]);
           }}
@@ -56,6 +64,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
               key={city.id}
               className="p-3 hover:bg-gray-200 cursor-pointer transition"
               onClick={() => {
+                setIsSelecting(true);
                 setCityName(city.name);
                 setSuggestions([]); // Zera as sugestões
                 onClickSearchBtn(city);
