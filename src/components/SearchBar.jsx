@@ -22,7 +22,6 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
     const delay = setTimeout(async () => {
       const cities = await fetchCities(cityName);
       setSuggestions(cities);
-      console.log(cities);
     }, 600);
 
     return () => clearTimeout(delay);

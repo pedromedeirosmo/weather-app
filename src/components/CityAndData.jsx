@@ -25,7 +25,7 @@ export default function CityAndData({
       </div>
 
       <p className="text-white/70 text-sm mt-1">{capitalizeWeekday(date)}</p>
-      <p className="text-white/70 text-sm mt-1">{time} - Horário de Brasília</p>
+      <p className="text-white/70 text-sm mt-1">{time.replace("GMT", "UTC")}</p>
     </div>
   );
 }

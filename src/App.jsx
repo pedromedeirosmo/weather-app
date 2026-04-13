@@ -17,6 +17,7 @@ export default function App() {
   // eslint-disable-next-line no-unused-vars
   const [clima, setClima] = useState({});
   const [time, setTime] = useState("");
+  const [timeZone, setTimeZone] = useState("UTC");
   const [cityName, setCityName] = useState("Xique Xique");
   const [region, setRegion] = useState("Bahia");
   const [countryCode, setCountryCode] = useState("BR");
@@ -96,6 +97,15 @@ export default function App() {
           alert("Erro ao buscar clima pela localização");
           return;
         }
+
+        // O timezone name pode estar em uma dos tres elementos da array informative, entao achar um que informative.name.includes('/')
+        const tz = bigCloudData.localityInfo.informative.find((item) =>
+          item.name?.includes("/"),
+        )?.name;
+        if (tz) {
+          setTimeZone(tz);
+        }
+
         setHooks(data, {
           name: data.name,
           region: bigCloudData.principalSubdivision,
@@ -118,21 +128,22 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Tempo da hora
   useEffect(() => {
-    const formatter = new Intl.DateTimeFormat("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    if (!timeZone) return;
+
     const interval = setInterval(() => {
+      const formatter = new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: timeZone,
+        timeZoneName: "shortOffset",
+      });
       setTime(formatter.format(new Date()));
     }, 1000);
 
-    return () => clearInterval(interval); // Quando esse componente sair da tela, para esse intervalo
-  }, []);
-
+    return () => clearInterval(interval);
+  }, [timeZone]);
   async function fetchCities(prefix) {
     if (!prefix) return [];
 
