@@ -5,9 +5,10 @@ export default function CityAndData({
   date,
   time,
 }) {
-  const regionNamesInPortuguese = new Intl.DisplayNames(["pt-BR"], {
-    type: "region",
-  });
+  function capitalizeWeekday(text) {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
   return (
     <div className="text-center mb-6">
       <div className="flex items-center justify-center gap-2">
@@ -19,12 +20,11 @@ export default function CityAndData({
 
         <h1 className="text-3xl font-bold">
           {cityName}
-          {region != "Região" && `, ${region}`} -{" "}
-          {regionNamesInPortuguese.of(countryCode)}
+          {region != "Região" && `, ${region}`}
         </h1>
       </div>
 
-      <p className="text-white/70 text-sm mt-1">{date}</p>
+      <p className="text-white/70 text-sm mt-1">{capitalizeWeekday(date)}</p>
       <p className="text-white/70 text-sm mt-1">{time} - Horário de Brasília</p>
     </div>
   );
