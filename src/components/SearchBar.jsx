@@ -9,7 +9,6 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
   useEffect(() => {
     // limpa quando vazio
     if (!cityName.trim() || cityName.length < 3) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions([]);
       return;
     }
@@ -20,6 +19,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
     }, 600);
 
     return () => clearTimeout(delay);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cityName]);
 
   return (

@@ -17,18 +17,18 @@ export default function App() {
   // eslint-disable-next-line no-unused-vars
   const [clima, setClima] = useState({});
   const [time, setTime] = useState("");
-  const [cityName, setCityName] = useState("Cidade");
-  const [region, setRegion] = useState("Região");
-  const [countryCode, setCountryCode] = useState("CD");
+  const [cityName, setCityName] = useState("Xique Xique");
+  const [region, setRegion] = useState("Bahia");
+  const [countryCode, setCountryCode] = useState("BR");
   const [date, setDate] = useState(formattingDate());
   const [icon, setIcon] = useState(
-    "https://openweathermap.org/img/wn/03d@2x.png",
+    "https://openweathermap.org/img/wn/01d@2x.png",
   );
-  const [temperature, setTemperature] = useState("0°");
-  const [description, setDescription] = useState("Descrição");
-  const [humidity, setHumidity] = useState("0%");
-  const [windSpeed, setWindSpeed] = useState("0 km/h");
-  const [feelsLike, setFeelsLike] = useState("0°");
+  const [temperature, setTemperature] = useState("100°");
+  const [description, setDescription] = useState("Calor extremo");
+  const [humidity, setHumidity] = useState("-1%");
+  const [windSpeed, setWindSpeed] = useState("67 km/h");
+  const [feelsLike, setFeelsLike] = useState("1000°");
 
   function setHooks(data, city) {
     setClima(data);
@@ -116,6 +116,7 @@ export default function App() {
     if ("geolocation" in navigator) {
       getUserLocationWeather();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Tempo da hora
