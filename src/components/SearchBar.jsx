@@ -37,9 +37,12 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
           value={cityName}
           onChange={(event) => setCityName(event.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && suggestions.length > 0) {
               isSelecting.current = true;
-              onClickSearchBtn({ name: cityName });
+              setCityName(
+                suggestions[0].local_names?.pt || suggestions[0].name,
+              );
+              onClickSearchBtn(suggestions[0]);
               setSuggestions([]); // Apagar sugestões
             }
           }}
@@ -48,8 +51,13 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
         <button
           className="bg-white/20 hover:bg-white/30 rounded-2xl px-4 py-3 transition"
           onClick={() => {
+            if (!suggestions.length) {
+              onClickSearchBtn({ name: cityName });
+              return;
+            }
             isSelecting.current = true;
-            onClickSearchBtn({ name: cityName });
+            setCityName(suggestions[0].local_names?.pt || suggestions[0].name);
+            onClickSearchBtn(suggestions[0]);
             setSuggestions([]);
           }}
         >
@@ -61,21 +69,22 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
         <div className="absolute top-full left-0 w-full bg-white text-black rounded-xl mt-2 overflow-hidden shadow-xl border border-gray-200 z-50">
           {suggestions.map((city) => (
             <div
-              key={city.id}
+              key={`${city.name}-${city.lat}-${city.lon}`}
               className="p-3 hover:bg-gray-200 cursor-pointer transition text-sm sm:text-base"
               onClick={() => {
                 isSelecting.current = true;
-                setCityName(city.name);
+                setCityName(city.local_names?.pt || city.name);
                 setSuggestions([]); // Zera as sugestões
                 onClickSearchBtn(city);
               }}
             >
               <img
-                src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${city.countryCode}.svg`}
+                src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${city.country}.svg`}
                 alt="country flag"
                 className="w-7 rounded-sm object-cover inline"
               />{" "}
-              {city.name}, {city.region}
+              {city.local_names?.pt || city.name}
+              {city.state && `, ${city.state}`}
             </div>
           ))}
         </div>

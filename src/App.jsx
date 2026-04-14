@@ -33,8 +33,8 @@ export default function App() {
 
   function setHooks(data, city) {
     setClima(data);
-    setCityName(city.name || data.name);
-    setRegion(city?.region || "Região");
+    setCityName(city.local_names?.pt || city.name || data.name);
+    setRegion(city?.state || "Região");
     setCountryCode(city.countryCode || data.sys.country);
     setDate(formattingDate());
 
@@ -57,8 +57,8 @@ export default function App() {
     try {
       let url;
 
-      if (city.latitude != null && city.longitude != null) {
-        url = `https://api.openweathermap.org/data/2.5/weather?lat=${city.latitude}&lon=${city.longitude}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`;
+      if (city.lat != null && city.lon != null) {
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`;
       } else {
         url = `https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=${import.meta.env.VITE_API_KEY}&units=metric&lang=pt_br`;
       }
@@ -108,7 +108,7 @@ export default function App() {
 
         setHooks(data, {
           name: data.name,
-          region: bigCloudData.principalSubdivision,
+          state: bigCloudData.principalSubdivision,
           latitude: lat,
           longitude: lon,
         });
@@ -129,7 +129,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    if (!timeZone) return;
+    if (!timeZone || typeof timeZone !== "string") return;
 
     const interval = setInterval(() => {
       const formatter = new Intl.DateTimeFormat("pt-BR", {
@@ -144,29 +144,17 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [timeZone]);
+
   async function fetchCities(prefix) {
     if (!prefix) return [];
 
     try {
       const response = await fetch(
-        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${prefix}&sort=-population&limit=5`,
-        {
-          method: "GET",
-          headers: {
-            "X-RapidAPI-Key": import.meta.env.VITE_GEODB_KEY,
-            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
-          },
-        },
+        `https://api.openweathermap.org/geo/1.0/direct?q=${prefix}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
       );
-
-      // Trata erro tipo 429
-      if (!response.ok) {
-        console.log("Erro na API:", response.status);
-        return [];
-      }
-
       const data = await response.json();
-      return data.data || []; // Evita undefined
+
+      return data || [];
     } catch (error) {
       console.log("Erro ao buscar cidades:", error);
       return [];
