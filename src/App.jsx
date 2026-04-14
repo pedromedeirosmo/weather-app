@@ -175,7 +175,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-4">
-      <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 w-fit text-white">
+      <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-8 w-full sm:w-fit sm:min-w-80 text-white">
         <SearchBar
           onClickSearchBtn={onClickSearchBtn}
           fetchCities={fetchCities}

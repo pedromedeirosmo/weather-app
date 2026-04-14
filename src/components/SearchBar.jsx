@@ -32,7 +32,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
     <div className="relative mb-8">
       <div className="flex gap-2">
         <input
-          className="flex-1 bg-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/50"
+          className="flex-1 bg-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/50 text-sm sm:text-base min-w-0"
           placeholder="Digite uma cidade..."
           value={cityName}
           onChange={(event) => setCityName(event.target.value)}
@@ -62,7 +62,7 @@ export default function SearchBar({ onClickSearchBtn, fetchCities }) {
           {suggestions.map((city) => (
             <div
               key={city.id}
-              className="p-3 hover:bg-gray-200 cursor-pointer transition"
+              className="p-3 hover:bg-gray-200 cursor-pointer transition text-sm sm:text-base"
               onClick={() => {
                 isSelecting.current = true;
                 setCityName(city.name);
