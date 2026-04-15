@@ -1,5 +1,6 @@
 import SearchBar from "./components/SearchBar";
-import CityAndData from "./components/CityAndData";
+import CityHeader from "./components/CityHeader";
+import DateAndTime from "./components/DateAndTime";
 import IconAndTemperature from "./components/IconAndTemperature";
 import CardDetails from "./components/CardDetails";
 import { useEffect, useState } from "react";
@@ -168,13 +169,13 @@ export default function App() {
           onClickSearchBtn={onClickSearchBtn}
           fetchCities={fetchCities}
         />
-        <CityAndData
+
+        <CityHeader
           cityName={cityName}
           region={region}
           countryCode={countryCode}
-          date={date}
-          time={time}
         />
+        <DateAndTime date={date} time={time} />
         <IconAndTemperature
           iconUrl={icon}
           temperature={temperature}
