@@ -5,12 +5,13 @@ import IconAndTemperature from "./components/IconAndTemperature";
 import CardDetails from "./components/CardDetails";
 import { useEffect, useState } from "react";
 
-function formattingDate() {
+function formattingDate(tz) {
   const date = new Date();
   return new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: tz,
   }).format(date);
 }
 
@@ -26,28 +27,22 @@ export default function App() {
   const [icon, setIcon] = useState(
     "https://openweathermap.org/img/wn/01d@2x.png",
   );
-  const [temperature, setTemperature] = useState("100°");
+  const [temperature, setTemperature] = useState(100);
   const [description, setDescription] = useState("Calor extremo");
-  const [humidity, setHumidity] = useState("-1%");
-  const [windSpeed, setWindSpeed] = useState("67 km/h");
-  const [feelsLike, setFeelsLike] = useState("1000°");
+  const [humidity, setHumidity] = useState(-1);
+  const [windSpeed, setWindSpeed] = useState(67);
+  const [feelsLike, setFeelsLike] = useState(1000);
 
   function setHooks(data, city) {
     setClima(data);
     setCityName(city.local_names?.pt || city.name || data.name);
     setRegion(city?.state || "Região");
     setCountryCode(city.countryCode || data.sys.country);
-    setDate(formattingDate());
-
-    const formattedTemp = `${Math.round(data.main.temp)}°`;
-    setTemperature(formattedTemp);
+    setTemperature(Math.round(data.main.temp));
     setDescription(data.weather[0].description);
-    const formattedHumidity = `${data.main.humidity}%`;
-    setHumidity(formattedHumidity);
-    const formattedWindSpeed = `${Math.round(data.wind.speed * 3.6)} km/h`;
-    setWindSpeed(formattedWindSpeed);
-    const formattedFeelsLike = `${Math.round(data.main.feels_like)}°`;
-    setFeelsLike(formattedFeelsLike);
+    setHumidity(data.main.humidity);
+    setWindSpeed(Math.round(data.wind.speed * 3.6));
+    setFeelsLike(Math.round(data.main.feels_like));
 
     const iconCode = data.weather[0].icon;
     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
@@ -70,6 +65,18 @@ export default function App() {
       if (data.cod !== 200) {
         alert("Cidade não encontrada");
         return;
+      }
+
+      const bigDataCloudResponse = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${data.coord.lat}&longitude=${data.coord.lon}&localityLanguage=pt`,
+      );
+      const bigCloudData = await bigDataCloudResponse.json();
+      const tz = bigCloudData.localityInfo.informative.find((item) =>
+        item.name?.includes("/"),
+      )?.name;
+      if (tz) {
+        setTimeZone(tz);
+        setDate(formattingDate(tz));
       }
 
       setHooks(data, city);
@@ -105,6 +112,7 @@ export default function App() {
         )?.name;
         if (tz) {
           setTimeZone(tz);
+          setDate(formattingDate(tz));
         }
 
         setHooks(data, {
