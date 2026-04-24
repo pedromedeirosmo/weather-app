@@ -32,6 +32,7 @@ export default function App() {
   const [humidity, setHumidity] = useState(-1);
   const [windSpeed, setWindSpeed] = useState(67);
   const [feelsLike, setFeelsLike] = useState(1000);
+  const [period, setPeriod] = useState(new Date().getHours());
 
   function setHooks(data, city) {
     setClima(data);
@@ -124,9 +125,9 @@ export default function App() {
       },
       (error) => {
         if (error.code === 1) {
-          alert("Permissão de localização negada");
+          console.log("Permissão de localização negada");
         } else {
-          alert("Não foi possível obter sua localização");
+          console.log("Não foi possível obter sua localização");
         }
       },
     );
@@ -137,10 +138,12 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
     if (!timeZone || typeof timeZone !== "string") return;
 
     const interval = setInterval(() => {
+      const now = new Date();
       const formatter = new Intl.DateTimeFormat("pt-BR", {
         hour: "2-digit",
         minute: "2-digit",
@@ -148,7 +151,14 @@ export default function App() {
         timeZone: timeZone,
         timeZoneName: "shortOffset",
       });
-      setTime(formatter.format(new Date()));
+
+      const formatterHour = new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        timeZone: timeZone,
+      });
+
+      setTime(formatter.format(now));
+      setPeriod(parseInt(formatterHour.format(now), 10));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -170,8 +180,22 @@ export default function App() {
     }
   }
 
+  function getBackgroundByHour(hour) {
+    if (hour >= 0 && hour < 6)
+      return "from-slate-950 via-slate-900 to-slate-800"; // Madrugada 00 - 5:59
+    if (hour >= 6 && hour < 8) return "from-slate-800 via-sky-800 to-amber-500"; // Amanhecer 6 - 7:59
+    if (hour >= 8 && hour < 12) return "from-blue-800 via-blue-500 to-sky-400"; // Manhã - 8 - 11:59
+    if (hour >= 12 && hour < 18)
+      return "from-blue-800 via-blue-700 to-blue-400"; // Tarde - 12 - 17:59
+    if (hour >= 18 && hour < 20)
+      return "from-blue-800 via-indigo-800 to-indigo-950"; // Entardecer 18 - 19:59
+    return "from-indigo-900 via-indigo-950 to-slate-900"; // Noite 20 - 23:59
+  }
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-4">
+    <div
+      className={`min-h-screen bg-linear-to-br ${getBackgroundByHour(period)} transition-colors flex items-center justify-center p-4`}
+    >
       <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-8 w-full sm:w-fit sm:min-w-80 text-white">
         <SearchBar
           onClickSearchBtn={onClickSearchBtn}
